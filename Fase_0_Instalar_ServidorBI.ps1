@@ -8,8 +8,9 @@ $ErrorActionPreference='Stop'
 function Requerir($nombre,$paquete) {
  if(Get-Command $nombre -ErrorAction SilentlyContinue){return}
  if(-not(Get-Command winget -ErrorAction SilentlyContinue)){throw "Instale $paquete mediante IT"}
+ Write-Host "INSTALANDO | $paquete | source=winget"
  & winget install --id $paquete --exact --source winget --accept-package-agreements --accept-source-agreements
- if($LASTEXITCODE -ne 0){throw "No se instalo $paquete"}
+ if($LASTEXITCODE -ne 0){throw "No se instalo $paquete desde winget (codigo $LASTEXITCODE). Compruebe winget source list y configuracion del servidor."}
  $env:Path=[Environment]::GetEnvironmentVariable('Path','Machine')+';'+[Environment]::GetEnvironmentVariable('Path','User')
  if(-not(Get-Command $nombre -ErrorAction SilentlyContinue)){throw "Abra otra consola PowerShell y ejecute nuevamente Fase 0 ($nombre)"}
 }
