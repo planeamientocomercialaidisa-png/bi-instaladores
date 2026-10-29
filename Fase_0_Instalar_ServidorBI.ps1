@@ -22,8 +22,11 @@ Requerir git Git.Git
 Requerir python Python.Python.3.12
 Requerir node OpenJS.NodeJS.LTS
 Requerir gh GitHub.cli
-& gh auth status *> $null
-if($LASTEXITCODE -ne 0){& gh auth login --hostname github.com --git-protocol https --web}
+$ghStatus = Start-Process -FilePath (Get-Command gh).Source -ArgumentList @('auth','status') -Wait -PassThru -NoNewWindow -RedirectStandardError (Join-Path $env:TEMP 'bi_gh_auth_status.err') -RedirectStandardOutput (Join-Path $env:TEMP 'bi_gh_auth_status.out')
+if($ghStatus.ExitCode -ne 0){
+ Write-Host 'GITHUB_LOGIN | Abriendo autenticacion en navegador'
+ & gh auth login --hostname github.com --git-protocol https --web
+}
 if($LASTEXITCODE -ne 0){throw 'No se pudo autenticar GitHub'}
 & gh auth setup-git
 if($LASTEXITCODE -ne 0){throw 'No se pudieron configurar las credenciales Git'}
