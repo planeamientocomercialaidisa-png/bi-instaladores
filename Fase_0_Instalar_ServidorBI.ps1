@@ -6,11 +6,15 @@ param(
 )
 $ErrorActionPreference='Stop'
 function Requerir($nombre,$paquete) {
- if(Get-Command $nombre -ErrorAction SilentlyContinue){return}
+ if(Get-Command $nombre -ErrorAction SilentlyContinue){Write-Host "DEPENDENCIA_OK | $nombre | se omite instalacion";return}
  if(-not(Get-Command winget -ErrorAction SilentlyContinue)){throw "Instale $paquete mediante IT"}
  Write-Host "INSTALANDO | $paquete | source=winget"
  & winget install --id $paquete --exact --source winget --accept-package-agreements --accept-source-agreements
- if($LASTEXITCODE -ne 0){throw "No se instalo $paquete desde winget (codigo $LASTEXITCODE). Compruebe winget source list y configuracion del servidor."}
+ if($LASTEXITCODE -ne 0){
+  $env:Path=[Environment]::GetEnvironmentVariable('Path','Machine')+';'+[Environment]::GetEnvironmentVariable('Path','User')
+  if(Get-Command $nombre -ErrorAction SilentlyContinue){Write-Host "DEPENDENCIA_OK | $nombre | instalado pese al aviso winget";return}
+  throw "No se instalo $paquete desde winget (codigo $LASTEXITCODE). Compruebe winget source list y conectividad del servidor."
+ }
  $env:Path=[Environment]::GetEnvironmentVariable('Path','Machine')+';'+[Environment]::GetEnvironmentVariable('Path','User')
  if(-not(Get-Command $nombre -ErrorAction SilentlyContinue)){throw "Abra otra consola PowerShell y ejecute nuevamente Fase 0 ($nombre)"}
 }
